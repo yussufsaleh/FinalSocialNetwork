@@ -50,7 +50,11 @@ public class UserController {
 	public Response signUp() {
 		return Response.ok(new Viewable("/jsp/register")).build();
 	}
-
+	@GET
+	@Path("/openPost")
+	public Response openPost() {
+		return Response.ok(new Viewable("/jsp/Post")).build();
+	}
 	/**
 	 * Action function to render home page of application, home page contains
 	 * only signup and login buttons
@@ -192,11 +196,8 @@ public class UserController {
 			JSONObject object = (JSONObject) obj;
 			if (object.get("Status").equals("Failed"))
 				return null;
-			Map<String, String> map = new HashMap<String, String>();
-			UserEntity user = UserEntity.getUser(object.toJSONString());
-			map.put("name", user.getName());
-			map.put("email", user.getEmail());
-			return Response.ok(new Viewable("/jsp/home", map)).build();
+			
+			return Response.ok(new Viewable("/jsp/home", object)).build();
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -318,4 +319,175 @@ public class UserController {
 		 */
 		return "Failed";
 	}
+	
+	//////////////////////////////
+	@POST
+	@Path("/Conversation")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String Group_Conversation(@FormParam("Friend") String F){
+		String serviceUrl = "http://localhost:8888/rest/ConversationService";
+		try {
+			URL url = new URL(serviceUrl);
+			String urlParameters = "Friend="+F;
+			HttpURLConnection connection = (HttpURLConnection) url
+					.openConnection();
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setInstanceFollowRedirects(false);
+			connection.setRequestMethod("POST");
+			connection.setConnectTimeout(60000);  //60 Seconds
+			connection.setReadTimeout(60000);  //60 Seconds
+			connection.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded;charset=UTF-8");
+			OutputStreamWriter writer = new OutputStreamWriter(
+					connection.getOutputStream());
+			writer.write(urlParameters);
+			writer.flush();
+			String line, retJson = "";
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+
+			while ((line = reader.readLine()) != null) {
+				retJson += line;
+			}
+			writer.close();
+			reader.close();
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(retJson);
+			JSONObject object = (JSONObject) obj;
+			if (object.get("Status").equals("OK"))
+				return "The Message has been sent to" +F+ "!"; // friend
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-gen9898erated catch block
+			e.printStackTrace();
+		}
+		
+		  //UserEntity user = new UserEntity(uname, email, pass);
+		  //user.saveUser(); return uname;
+		
+		return "Failed";  }
+	@POST
+	@Path("/userPost")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String userPost(@FormParam("content") String content,@FormParam("timeLine") String timeLine,
+            @FormParam("feeling") String feeling,
+            @FormParam("hashTag") String  hashTag ,@FormParam("userPrivacy") String  privacy){
+		String serviceUrl = "";
+		if(privacy.equals("public")){
+			serviceUrl = "http://localhost:8888/rest/UserPublicPostService";
+		}
+		else{
+			serviceUrl = "http://localhost:8888/rest/UserPrivatePostService";
+		}
+		try {
+			URL url = new URL(serviceUrl);
+			String urlParameters = "content="+content+"&hashTag="+hashTag+"&feeling="+feeling+"&timeLine="+timeLine;
+			HttpURLConnection connection = (HttpURLConnection) url
+					.openConnection();
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setInstanceFollowRedirects(false);
+			connection.setRequestMethod("POST");
+			connection.setConnectTimeout(60000);  //60 Seconds
+			connection.setReadTimeout(60000);  //60 Seconds
+			connection.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded;charset=UTF-8");
+			OutputStreamWriter writer = new OutputStreamWriter(
+					connection.getOutputStream());
+			writer.write(urlParameters);
+			writer.flush();
+			String line, retJson = "";
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+
+			while ((line = reader.readLine()) != null) {
+				retJson += line;
+			}
+			writer.close();
+			reader.close();
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(retJson);
+			JSONObject object = (JSONObject) obj;
+			if (object.get("Status").equals("OK"))
+				return "Your status is Posted";
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*
+		 * UserEntity user = new UserEntity(uname, email, pass);
+		 * user.saveUser(); return uname;
+		 */
+		return "Failed";
+	}
+	@POST
+	@Path("/CreatePage")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String createPage(@FormParam("ownername") String ownernam,
+			@FormParam("pagename") String pagname,
+			@FormParam("pagecategory") String pagcategory,
+			@FormParam("pagetype") String pagtype){
+		String serviceUrl = "http://localhost:8888/rest/createpageservice";
+		try {
+			URL url = new URL(serviceUrl);
+			String urlParameters ="ownername="+ownernam+
+					"&pagename="+pagname+"&pagecategory="+pagcategory+
+					"&pagetype="+pagtype;
+			HttpURLConnection connection = (HttpURLConnection) url
+					.openConnection();
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setInstanceFollowRedirects(false);
+			connection.setRequestMethod("POST");
+			connection.setConnectTimeout(60000);  //60 Seconds
+			connection.setReadTimeout(60000);  //60 Seconds
+			connection.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded;charset=UTF-8");
+			OutputStreamWriter writer = new OutputStreamWriter(
+					connection.getOutputStream());
+			writer.write(urlParameters);
+			writer.flush();
+			String line, retJson = "";
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+
+			while ((line = reader.readLine()) != null) {
+				retJson += line;
+			}
+			writer.close();
+			reader.close();
+			JSONParser parser = new JSONParser();
+			Object obj = parser.parse(retJson);
+			JSONObject object = (JSONObject) obj;
+			if (object.get("Status").equals("OK"))
+				return "the page has been created!";
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*
+		 * UserEntity user = new UserEntity(uname, email, pass);
+		 * user.saveUser(); return uname;
+		 */
+		return "Failed";
+	}
+		
 }
